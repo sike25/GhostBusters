@@ -20,6 +20,9 @@ import game
 from util import manhattanDistance, raiseNotDefined
 
 
+
+
+
 class DiscreteDistribution(dict):
     """
     A DiscreteDistribution models belief distributions and weight distributions
@@ -74,8 +77,11 @@ class DiscreteDistribution(dict):
         >>> empty
         {}
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        totalValue = self.total()
+        if totalValue != 0:
+            for key, value in self.items():
+                self[key] = value/totalValue
+
 
     def sample(self):
         """
@@ -98,8 +104,14 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # totalValue = self.total()
+        # randomFloat = random.random() # between 0.0 and 0.1
+        self.normalize()
+        # # Source: 
+        # # https://stackoverflow.com/questions/58632684/how-do-i-generate-dice-rolls-with-different-probabilities
+        ans = random.choices(list(self.keys()), weights=list(self.values()), k=1)
+        #print(ans)
+        return ans[0]
 
 
 class InferenceModule:
@@ -474,3 +486,20 @@ class MarginalInference(InferenceModule):
         for t, prob in jointDistribution.items():
             dist[t[self.index - 1]] += prob
         return dist
+    
+def do():
+    dist = DiscreteDistribution()
+    dist['a'] = 1
+    dist['b'] = 2
+    dist['c'] = 2
+    dist['d'] = 0
+    dist.normalize()
+    print(list(sorted(dist.items())))
+        # [('a', 0.2), ('b', 0.4), ('c', 0.4), ('d', 0.0)]
+    dist['e'] = 4
+    print(list(sorted(dist.items())))
+        # [('a', 0.2), ('b', 0.4), ('c', 0.4), ('d', 0.0), ('e', 4)]
+    empty = DiscreteDistribution()
+    empty.normalize()
+    print(empty)
+        # {}
