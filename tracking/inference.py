@@ -178,10 +178,23 @@ class InferenceModule:
 
     def getObservationProb(self, noisyDistance, pacmanPosition, ghostPosition, jailPosition):
         """
-        Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
+        Return P(noisyDistance | pacmanPosition, ghostPosition).
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # if ghost is in jail, and the noisyDistance reflects this (is null)
+        if noisyDistance == None and ghostPosition == jailPosition:
+            return 1.0
+
+        # if ghost is in jail, but noisyDistance is not null 
+        # or noisyDistance is null, but ghost is not in jail
+        if ghostPosition == jailPosition or noisyDistance == None:
+            trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+            return 0.0
+    
+
+        trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+        #  returns P(noisyDistance | trueDistance)
+        return busters.getObservationProbability(noisyDistance, trueDistance)
+
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
@@ -288,9 +301,17 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-
+        pacmanPosition = gameState.getPacmanPosition()
+        jailPosition = self.getJailPosition()
+        for ghostPosition in self.allPositions:
+            # Inference formula
+            # P(Ghost Position ∣ Observation) =
+            # [P(Observation ∣ Ghost Position) * P(Ghost Position)] / P(Observation) 
+            #  where P(Observation ∣ Ghost Position) is given by: self.getObservationProb()
+            #  and P(Ghost Position) is the present self.beliefs[ghostPosition]
+            # division by P(Observation) is achieved by normalization
+            obsProb = self.getObservationProb(observation, pacmanPosition, ghostPosition, jailPosition)
+            self.beliefs[ghostPosition] = self.beliefs[ghostPosition] * obsProb
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):

@@ -199,7 +199,6 @@ class GameState:
     def getLivingGhosts(self):
         """
         Returns a list of booleans indicating which ghosts are not yet captured.
-
         The first entry (a placeholder for Pacman's index) is always False.
         """
         return self.livingGhosts
