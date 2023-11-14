@@ -145,24 +145,15 @@ class GreedyBustersAgent(BustersAgent):
         # a list of DiscreteDistribution objects representing the position belief
         # distributions for each of the ghosts that are still uncaptured.
         livingGhostPositionDistributions = [beliefs for i, beliefs in enumerate(self.ghostBeliefs) if livingGhosts[i+1]]
-     
-        # print("sike is a queen")
-        # # my implementations
-        # observeUpdate()
-        # elapseTime()
-        # # the successor position of a position after an action
-        # successorPosition = Actions.getSuccessor(position, action)
-        # # the maze distance between
-        # self.distancer.getDistance(pos1, pos2)
 
-        minDistance = sys.maxsize
-        nearestGhostPosition = (-1, -1)
-        
+        # remove dead ghosts from list
         newLivingGhosts = []
         for living in livingGhosts:
             if living:
                 newLivingGhosts.append(living)
 
+        minDistance = sys.maxsize
+        nearestGhostPosition = (-1, -1)
         for ghostId, living in enumerate(newLivingGhosts):
             if living:
                 # map: position -> probability ghost is here
