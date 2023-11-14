@@ -18,6 +18,7 @@ from game import Directions
 from keyboardAgents import KeyboardAgent
 import inference
 import busters
+import sys
 
 class NullGraphics:
     "Placeholder for graphics"
@@ -138,9 +139,54 @@ class GreedyBustersAgent(BustersAgent):
         Pacman closest to the closest ghost (according to mazeDistance!).
         """
         pacmanPosition = gameState.getPacmanPosition()
-        legal = [a for a in gameState.getLegalPacmanActions()]
+        legalActions = [a for a in gameState.getLegalPacmanActions()]
+        # boolean array where index -> T, means the ghost identified by that index is living
         livingGhosts = gameState.getLivingGhosts()
-        livingGhostPositionDistributions = \
-            [beliefs for i, beliefs in enumerate(self.ghostBeliefs)
-             if livingGhosts[i+1]]
-        "*** YOUR CODE HERE ***"
+        # a list of DiscreteDistribution objects representing the position belief
+        # distributions for each of the ghosts that are still uncaptured.
+        livingGhostPositionDistributions = [beliefs for i, beliefs in enumerate(self.ghostBeliefs) if livingGhosts[i+1]]
+     
+        # print("sike is a queen")
+        # # my implementations
+        # observeUpdate()
+        # elapseTime()
+        # # the successor position of a position after an action
+        # successorPosition = Actions.getSuccessor(position, action)
+        # # the maze distance between
+        # self.distancer.getDistance(pos1, pos2)
+
+        minDistance = sys.maxsize
+        nearestGhostPosition = (-1, -1)
+        
+        newLivingGhosts = []
+        for living in livingGhosts:
+            if living:
+                newLivingGhosts.append(living)
+
+        for ghostId, living in enumerate(newLivingGhosts):
+            if living:
+                # map: position -> probability ghost is here
+                probGhostMap = livingGhostPositionDistributions[ghostId]
+                # the position with the highest probability
+                ghostPosition = max(probGhostMap, key=lambda k: probGhostMap[k])
+                # the maze distance of this ghost from pacman
+                ghostDistance = self.distancer.getDistance(ghostPosition, pacmanPosition)
+                # is it the closest to Pacman so far?
+                minDistance = min(minDistance, ghostDistance)
+                if minDistance == ghostDistance:
+                    nearestGhostPosition = ghostPosition
+
+        minDistanceToOurNearestGhost = sys.maxsize
+        bestAction = ""
+        for action in legalActions:
+            # the successor position of a position after an action
+            successorPosition = Actions.getSuccessor(pacmanPosition, action)
+            # the potential new maze distance of our pacman (after it moves) to the nearest ghost
+            potentialDistanceToOurNearestGhost = self.distancer.getDistance(nearestGhostPosition, successorPosition)
+            # will this action bring us the closest to our nearest ghost?
+            minDistanceToOurNearestGhost = min(minDistanceToOurNearestGhost, potentialDistanceToOurNearestGhost)
+            if minDistanceToOurNearestGhost == potentialDistanceToOurNearestGhost:
+                bestAction = action
+           
+        return bestAction
+   
