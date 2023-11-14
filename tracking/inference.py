@@ -323,12 +323,17 @@ class ExactInference(InferenceModule):
         Pacman's current position. However, this is not a problem, as Pacman's
         current position is known.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # update: new position's belief = old position's (old) belief * new position's probability
+        oldBeliefs = self.beliefs.copy()
+        for newPosition in self.allPositions:
+            self.beliefs[newPosition] = 0
+            for oldPosition in self.allPositions:
+                #  obtain the distribution over new positions for the ghost, given its previous position
+                newPosDist = self.getPositionDistribution(gameState, oldPosition)
+                self.beliefs[newPosition] += oldBeliefs[oldPosition] * newPosDist[newPosition]
 
     def getBeliefDistribution(self):
         return self.beliefs
-
 
 class ParticleFilter(InferenceModule):
     """
