@@ -354,9 +354,13 @@ class ParticleFilter(InferenceModule):
         distributed across positions in order to ensure a uniform prior. Use
         self.particles for the list of particles.
         """
+        # if there are ten particles and two legal positions, each position should get five particles
         self.particles = []
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # for every particle
+        for i in range(self.numParticles):
+            # make the particle the position at index i mod the length of the legal positions list 
+            self.particles.append(self.legalPositions[i % len(self.legalPositions)])
+
 
     def observeUpdate(self, observation, gameState):
         """
@@ -389,8 +393,12 @@ class ParticleFilter(InferenceModule):
         
         This function should return a normalized distribution.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        beliefDistribution = DiscreteDistribution()
+        for particle in self.particles:
+            beliefDistribution[particle] = 1
+
+        beliefDistribution.normalize()
+        return beliefDistribution
 
 
 class JointParticleFilter(ParticleFilter):
