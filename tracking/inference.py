@@ -453,8 +453,18 @@ class JointParticleFilter(ParticleFilter):
         uniform prior.
         """
         self.particles = []
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # cartesian product
+        cartesianProduct = itertools.product(self.legalPositions, repeat= self.numGhosts)
+        # making the product a list and naming it permutations
+        permutations = []
+        for p in cartesianProduct:
+            permutations.append(p)
+        # shuffling the list
+        random.shuffle(permutations)
+        # add particles
+        for i in range(self.numParticles):
+            particle = permutations[i % len(permutations)]
+            self.particles.append(particle)
 
     def addGhostAgent(self, agent):
         """
