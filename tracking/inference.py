@@ -187,10 +187,8 @@ class InferenceModule:
         # if ghost is in jail, but noisyDistance is not null 
         # or noisyDistance is null, but ghost is not in jail
         if ghostPosition == jailPosition or noisyDistance == None:
-            trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
             return 0.0
     
-
         trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
         #  returns P(noisyDistance | trueDistance)
         return busters.getObservationProbability(noisyDistance, trueDistance)
@@ -374,16 +372,46 @@ class ParticleFilter(InferenceModule):
         be reinitialized by calling initializeUniformly. The total method of
         the DiscreteDistribution may be useful.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # pacmanPosition = gameState.getPacmanPosition()
+        # jailPosition = self.getJailPosition()
+        # weights = DiscreteDistribution()
+        
+        # for particle in self.particles:
+        #     # print("observation, pacmanPosition, particle, jailPosition: ", observation, pacmanPosition, particle, jailPosition)
+        #     weights[particle] = weights[particle] + self.getObservationProb(observation, pacmanPosition, particle, jailPosition)
+    
+       
+        # # print("WEIGHTS norm:", weights)
+
+        # if weights.total() == 0:
+        #     self.initializeUniformly(gameState)
+        # else:
+        #     weights.normalize()
+        #     self.particles = []
+        #     for i in range(self.numParticles):
+        #         self.particles.append(weights.sample())
+
+        particleDistribution = DiscreteDistribution()
+        for position in self.legalPositions:
+            particleDistribution[position] = self.particles.count(position) * self.getObservationProb(observation, gameState.getPacmanPosition(), position, self.getJailPosition())
+        if particleDistribution.total() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            particleDistribution.normalize()
+            self.particles = []
+            for i in range(self.numParticles):
+                self.particles.append(particleDistribution.sample())
+
 
     def elapseTime(self, gameState):
         """
         Sample each particle's next state based on its current state and the
         gameState.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        updatedParticles = []
+        for particle in self.particles:
+            updatedParticles.append(DiscreteDistribution.sample(self.getPositionDistribution(gameState, particle)))
+        self.particles = updatedParticles
 
     def getBeliefDistribution(self):
         """
@@ -395,7 +423,7 @@ class ParticleFilter(InferenceModule):
         """
         beliefDistribution = DiscreteDistribution()
         for particle in self.particles:
-            beliefDistribution[particle] = 1
+            beliefDistribution[particle] += 1
 
         beliefDistribution.normalize()
         return beliefDistribution
