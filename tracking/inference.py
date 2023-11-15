@@ -372,25 +372,6 @@ class ParticleFilter(InferenceModule):
         be reinitialized by calling initializeUniformly. The total method of
         the DiscreteDistribution may be useful.
         """
-        # pacmanPosition = gameState.getPacmanPosition()
-        # jailPosition = self.getJailPosition()
-        # weights = DiscreteDistribution()
-        
-        # for particle in self.particles:
-        #     # print("observation, pacmanPosition, particle, jailPosition: ", observation, pacmanPosition, particle, jailPosition)
-        #     weights[particle] = weights[particle] + self.getObservationProb(observation, pacmanPosition, particle, jailPosition)
-    
-       
-        # # print("WEIGHTS norm:", weights)
-
-        # if weights.total() == 0:
-        #     self.initializeUniformly(gameState)
-        # else:
-        #     weights.normalize()
-        #     self.particles = []
-        #     for i in range(self.numParticles):
-        #         self.particles.append(weights.sample())
-
         particleDistribution = DiscreteDistribution()
         for position in self.legalPositions:
             particleDistribution[position] = self.particles.count(position) * self.getObservationProb(observation, gameState.getPacmanPosition(), position, self.getJailPosition())
@@ -424,7 +405,6 @@ class ParticleFilter(InferenceModule):
         beliefDistribution = DiscreteDistribution()
         for particle in self.particles:
             beliefDistribution[particle] += 1
-
         beliefDistribution.normalize()
         return beliefDistribution
 
@@ -516,15 +496,13 @@ class JointParticleFilter(ParticleFilter):
         gameState.
         """
         newParticles = []
+        prevGhostPositions = 0
         for oldParticle in self.particles:
             newParticle = list(oldParticle)  # A list of ghost positions
-
             # now loop through and update each entry in newParticle...
-            "*** YOUR CODE HERE ***"
-            raiseNotDefined()
-
-            """*** END YOUR CODE HERE ***"""
-            newParticles.append(tuple(newParticle))
+            for i in range(self.numGhosts):
+                prevGhostPositions = list(oldParticle)
+                newParticle[i] = DiscreteDistribution.sample(self.getPositionDistribution(gameState, prevGhostPositions, i, self.ghostAgents[i]
         self.particles = newParticles
 
 
